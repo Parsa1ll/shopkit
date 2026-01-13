@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Loader2, Check, Minus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -37,24 +36,10 @@ type DialogState = "item-selection" | "checkout" | "waiting-payment" | "complete
 export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDialogProps) {
   const [state, setState] = useState<DialogState>("item-selection")
   const [cart, setCart] = useState<CartItem[]>([])
-  const [rfidDetected, setRfidDetected] = useState(false)
+  const [rfidBuffer, setRfidBuffer] = useState("")
+  const [checkoutTime, setCheckoutTime] = useState<number>(0)
+  const [detectedRfid, setDetectedRfid] = useState<string>("")
   const { toast } = useToast()
-
-  // Listen for RFID detections
-  useEffect(() => {
-    if (state !== "waiting-payment") return
-
-    const handleKeyPress = (e: KeyboardEvent) => {
-      // RFID readers typically send data followed by Enter key
-      // This is a simple implementation - adjust based on your hardware
-      if (e.key === "Enter" && rfidDetected) {
-        completeTransaction()
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyPress)
-    return () => window.removeEventListener("keydown", handleKeyPress)
-  }, [state, rfidDetected])
 
   const toggleItem = (product: Product) => {
     setCart((prev) => {
@@ -89,7 +74,7 @@ export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDia
     return getTotal() + getTax()
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       toast({
         title: "No items selected",
@@ -98,13 +83,38 @@ export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDia
       })
       return
     }
+    
+    try {
+      const response = await fetch("/api/rfid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rfidUid: "PENDING",
+          scannerId: "SK-2847",
+          items: cart.map((item) => `${item.product} (x${item.quantity})`),
+          total: getTotalWithTax(),
+        }),
+      })
+      
+      if (!response.ok) throw new Error("Failed to create transaction")
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create transaction",
+        variant: "destructive",
+      })
+      return
+    }
+    
     setState("waiting-payment")
-    setRfidDetected(false)
+    setCheckoutTime(Date.now())
+    setRfidBuffer("")
+    setDetectedRfid("")
   }
 
-  const completeTransaction = async () => {
+  const completeTransaction = async (rfidUid?: string) => {
     try {
-      const rfidUid = "RFID-" + Math.random().toString(36).substr(2, 9).toUpperCase()
+      const uid = rfidUid || "MANUAL-" + Math.random().toString(36).substr(2, 9).toUpperCase()
 
       const response = await fetch("/api/rfid", {
         method: "POST",
@@ -112,7 +122,7 @@ export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDia
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          rfidUid: rfidUid,
+          rfidUid: uid,
           scannerId: "SK-2847",
           items: cart.map((item) => `${item.product} (x${item.quantity})`),
           total: getTotalWithTax(),
@@ -144,6 +154,84 @@ export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDia
       setState("waiting-payment")
     }
   }
+
+  // Listen for RFID scanner input (via API polling)
+  useEffect(() => {
+    if (state !== "waiting-payment") return
+
+    let buffer = ""
+    let pollingInterval: NodeJS.Timeout | null = null
+
+    // Poll the API to detect RFID scans from serial bridge
+    const pollForRfid = async () => {
+      try {
+        const response = await fetch("/api/rfid")
+        const transactions = await response.json()
+        
+        if (transactions.length > 0) {
+          const latestTxn = transactions[0]
+          
+          // Check if this is a recent transaction with RFID
+          const txnTime = new Date(latestTxn.timestamp).getTime()
+          const isRecent = txnTime > checkoutTime
+          const hasRfid = latestTxn.rfidUid && latestTxn.rfidUid !== "PENDING"
+          
+          if (isRecent && hasRfid && !detectedRfid) {
+            console.log("✅ RFID scan detected!", latestTxn.rfidUid)
+            setDetectedRfid(latestTxn.rfidUid)
+            
+            // Show success
+            setState("complete")
+            setTimeout(() => {
+              onSaleComplete()
+              setCart([])
+              setState("item-selection")
+              setCheckoutTime(0)
+              setDetectedRfid("")
+              onOpenChange(false)
+            }, 2000)
+          }
+        }
+      } catch (error) {
+        console.error("Error polling for RFID:", error)
+      }
+    }
+
+    // Keyboard fallback
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return
+      }
+
+      if (e.key === "Enter") {
+        if (buffer.length > 0) {
+          console.log("⌨️ Keyboard RFID:", buffer)
+          setDetectedRfid(buffer)
+          setState("complete")
+          setTimeout(() => {
+            onSaleComplete()
+            setCart([])
+            setState("item-selection")
+            setCheckoutTime(0)
+            setDetectedRfid("")
+            onOpenChange(false)
+          }, 2000)
+          buffer = ""
+        }
+      } else if (e.key.length === 1) {
+        buffer += e.key
+      }
+    }
+
+    // Start polling every 300ms
+    pollingInterval = setInterval(pollForRfid, 300)
+    window.addEventListener("keydown", handleKeyPress)
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval)
+      window.removeEventListener("keydown", handleKeyPress)
+    }
+  }, [state, checkoutTime, detectedRfid, onSaleComplete, onOpenChange])
 
   const handleClose = () => {
     if (state === "waiting-payment") return
@@ -179,7 +267,7 @@ export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDia
                       <div className="flex justify-between items-center mb-2">
                         <div>
                           <p className="text-sm font-medium text-white">{product.product}</p>
-                          <p className="text-xs text-[#919191] mt-1">{product.tagId}</p>
+                          <p className="text-xs text-[#919191] mt-1 font-mono">{product.tagId}</p>
                         </div>
                         <p className="text-sm font-semibold text-white">${product.price.toFixed(2)}</p>
                       </div>
@@ -251,9 +339,12 @@ export function NewSaleDialog({ open, onOpenChange, onSaleComplete }: NewSaleDia
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
                   <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 </div>
-                <p className="text-sm text-[#919191] mb-2">Tap RFID card to complete payment</p>
+                <p className="text-sm text-[#919191] mb-2">Scan RFID card to complete payment</p>
                 <p className="text-3xl font-bold text-white">${getTotalWithTax().toFixed(2)}</p>
                 <p className="text-xs text-[#919191] mt-1">Includes 13% tax</p>
+                {rfidBuffer && (
+                  <p className="text-xs text-primary mt-2 font-mono">Detected: {rfidBuffer}</p>
+                )}
               </div>
 
               <div className="bg-[#1A1A1A] rounded-lg p-4 space-y-3">

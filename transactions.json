@@ -1,0 +1,130 @@
+[
+  {
+    "id": "TXN-610",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:55:41.260Z",
+    "rfidUid": "08:B2:34:95"
+  },
+  {
+    "id": "TXN-730",
+    "items": [
+      "Classic White T-Shirt (x3)",
+      "Running Shoes (x2)"
+    ],
+    "total": 355.8935,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:55:34.625Z",
+    "rfidUid": "PENDING"
+  },
+  {
+    "id": "TXN-556",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:53:09.957Z",
+    "rfidUid": "02:0F:B1:09:65:20:00"
+  },
+  {
+    "id": "TXN-671",
+    "items": [
+      "Classic White T-Shirt (x2)",
+      "Denim Jacket (x1)"
+    ],
+    "total": 158.1661,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:52:56.883Z",
+    "rfidUid": "PENDING"
+  },
+  {
+    "id": "TXN-879",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:52:35.599Z",
+    "rfidUid": "08:40:8B:F3"
+  },
+  {
+    "id": "TXN-578",
+    "items": [
+      "Denim Jacket (x1)",
+      "Classic White T-Shirt (x3)"
+    ],
+    "total": 186.40479999999997,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:52:31.378Z",
+    "rfidUid": "PENDING"
+  },
+  {
+    "id": "TXN-133",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:50:46.115Z",
+    "rfidUid": "08:D9:49:80"
+  },
+  {
+    "id": "TXN-470",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:49:35.892Z",
+    "rfidUid": "08:27:CF:19"
+  },
+  {
+    "id": "TXN-397",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:49:33.046Z",
+    "rfidUid": "08:60:B3:E2"
+  },
+  {
+    "id": "TXN-969",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:49:22.658Z",
+    "rfidUid": "08:C8:64:E0"
+  },
+  {
+    "id": "TXN-120",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:48:49.471Z",
+    "rfidUid": "08:45:39:01"
+  },
+  {
+    "id": "TXN-707",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:48:47.445Z",
+    "rfidUid": "08:3D:84:4D"
+  },
+  {
+    "id": "TXN-493",
+    "items": [],
+    "total": 0,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:48:44.137Z",
+    "rfidUid": "08:87:0D:C1"
+  },
+  {
+    "id": "TXN-209",
+    "items": [
+      {
+        "id": 1,
+        "name": "Classic White T-Shirt",
+        "price": 25,
+        "quantity": 2
+      }
+    ],
+    "total": 56.5,
+    "scannerId": "SK-2847",
+    "timestamp": "2026-01-13T07:46:09.815Z",
+    "rfidUid": "12:34:56:78"
+  }
+]
