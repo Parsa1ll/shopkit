@@ -2,6 +2,7 @@ import { TopNav } from "@/components/top-nav"
 import { Sidebar } from "@/components/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Battery, Wifi } from "lucide-react"
+import NewSaleBox from "@/components/new-sale-box"
 
 export default function OverviewPage() {
   const scannedItems = [
@@ -22,6 +23,8 @@ export default function OverviewPage() {
           <div>
             <h2 className="text-2xl font-semibold text-white mb-6">Overview</h2>
           </div>
+
+          <NewSaleBox />
 
           <Card className="bg-[#0D0D0D] border-[#1F1F1F]">
             <CardHeader>

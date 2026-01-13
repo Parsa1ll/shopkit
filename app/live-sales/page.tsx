@@ -3,6 +3,7 @@ import { TopNav } from "@/components/top-nav"
 import { Sidebar } from "@/components/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts"
+import { useEffect, useState } from "react"
 
 const salesData = [
   { time: "9:00", sales: 120 },
@@ -32,7 +33,7 @@ interface Transaction {
   timestamp: Date
 }
 
-const transactions: Transaction[] = [
+const mockTransactions: Transaction[] = [
   {
     id: "TXN-001",
     items: ["Classic White T-Shirt", "Denim Jacket"],
@@ -71,12 +72,39 @@ const transactions: Transaction[] = [
 ]
 
 export default function LiveSalesPage() {
+  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions)
+  
+  useEffect(() => {
+    // Fetch transactions from API
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch('/api/rfid')
+        if (response.ok) {
+          const data = await response.json()
+          setTransactions(data)
+        }
+      } catch (error) {
+        console.error('Error fetching transactions:', error)
+        // Fall back to mock data if API fails
+      }
+    }
+
+    fetchTransactions()
+
+    // Refresh transactions every 5 seconds
+    const interval = setInterval(fetchTransactions, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+    const dateObj = new Date(date)
+    return dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    const dateObj = new Date(date)
+    return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
   }
 
   return (
