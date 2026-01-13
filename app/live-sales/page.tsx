@@ -145,7 +145,7 @@ export default function LiveSalesPage() {
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium text-white">{transaction.items.join(", ")}</p>
                       <div className="flex items-center gap-4 text-xs text-[#919191]">
-                        <span>Scanner: {transaction.scannerId}</span>
+                        <span>Scanner: <span className="font-mono">{transaction.scannerId}</span></span>
                         <span>•</span>
                         <span>
                           {formatDate(transaction.timestamp)} at {formatTime(transaction.timestamp)}
@@ -154,7 +154,7 @@ export default function LiveSalesPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-white">${transaction.total.toFixed(2)}</p>
-                      <p className="text-xs text-[#919191] mt-1">{transaction.id}</p>
+                      <p className="text-xs text-[#919191] mt-1 font-mono">{transaction.id}</p>
                     </div>
                   </div>
                 ))}

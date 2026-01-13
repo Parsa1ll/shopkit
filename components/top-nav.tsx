@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Check, ChevronDown, LogOut, Settings2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ShopifyLogo } from "@/components/shopify-logo"
 
 export function TopNav() {
   const [selectedStore, setSelectedStore] = useState("Main Store")
@@ -12,7 +13,7 @@ export function TopNav() {
     <header className="fixed top-0 left-0 right-0 h-16 bg-black/10 backdrop-blur-[120px] border-b border-[#1F1F1F] z-50">
       <div className="flex items-center justify-between h-full px-6">
         <div className="flex items-center gap-8">
-          <h1 className="text-xl font-semibold text-white">ShopKit</h1>
+          <ShopifyLogo className="h-8 w-auto text-white" />
 
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-sm font-medium text-white">
